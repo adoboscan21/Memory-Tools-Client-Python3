@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     # Nombre del paquete que se usará para 'pip install'.
-    name="memory-tools-client-python3",
+    name="memory-tools-client",
     # Versión de tu paquete.
     version="1.0.0",
     # Autor y dirección de correo electrónico.
@@ -32,10 +32,7 @@ setuptools.setup(
     ],
     # Dependencias del paquete.
     install_requires=[
-        # No hay dependencias externas en este momento, pero puedes agregarlas aquí.
-        # Por ejemplo, si usas `requests`, agregarías:
-        # "requests>=2.25.1",
     ],
     # Versiones de Python compatibles.
-    python_requires=">=3.7",
+    python_requires=">=3.13.5",
 )

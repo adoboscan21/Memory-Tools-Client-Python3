@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from src.memory_tools_client.memory_tools_client import (
+from src.memory_tools_client import (
     MemoryToolsClient,
     Query,
     OrderByClause,

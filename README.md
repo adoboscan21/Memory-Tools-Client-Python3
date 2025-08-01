@@ -46,7 +46,7 @@ from memory_tools_client import MemoryToolsClient
 async def main():
     # Replace with your server details
     host = "127.0.0.1"
-    port = 8080
+    port = 5876
     username = "admin"
     password = "adminpass"
 
@@ -96,7 +96,7 @@ from memory_tools_client import MemoryToolsClient, Query, OrderByClause, Aggrega
 import json
 
 async def run_query_example():
-    client = MemoryToolsClient("127.0.0.1", 8080, "admin", "adminpass", reject_unauthorized=False)
+    client = MemoryToolsClient("127.0.0.1", 5876, "admin", "adminpass", reject_unauthorized=False)
     try:
         await client.connect()
         collection_name = "query_example"

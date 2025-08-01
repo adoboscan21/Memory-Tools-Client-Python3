@@ -14,7 +14,7 @@ logging.getLogger("memory_tools_client").setLevel(logging.WARNING)
 async def run_tests():
     """
     Runs a series of integration tests for the Memory Tools client.
-    Requires a running Memory Tools server at 127.0.0.1:8080.
+    Requires a running Memory Tools server at 127.0.0.1:5876.
     """
     print("Starting Memory Tools client tests...")
 
@@ -24,7 +24,7 @@ async def run_tests():
     try:
         start_time = asyncio.get_event_loop().time()
         client_bad_auth = MemoryToolsClient(
-            "127.0.0.1", 8080, "nonexistent_user", "wrongpassword", None, False
+            "127.0.0.1", 5876, "nonexistent_user", "wrongpassword", None, False
         )
         await client_bad_auth.connect()
         print(
@@ -44,7 +44,7 @@ async def run_tests():
     client_root = None
     try:
         client_root = MemoryToolsClient(
-            "127.0.0.1", 8080, "root", "rootpass", None, False
+            "127.0.0.1", 5876, "root", "rootpass", None, False
         )
         start_time = asyncio.get_event_loop().time()
         await client_root.connect()
@@ -73,7 +73,7 @@ async def run_tests():
     client_admin = None
     try:
         client_admin = MemoryToolsClient(
-            "127.0.0.1", 8080, "admin", "adminpass", None, False
+            "127.0.0.1", 5876, "admin", "adminpass", None, False
         )
 
         print("Attempting to connect and authenticate as 'admin'...")

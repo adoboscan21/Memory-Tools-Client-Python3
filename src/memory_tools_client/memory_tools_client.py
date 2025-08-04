@@ -22,7 +22,6 @@ CMD_COLLECTION_ITEM_SET = 9
 CMD_COLLECTION_ITEM_SET_MANY = 10
 CMD_COLLECTION_ITEM_GET = 11
 CMD_COLLECTION_ITEM_DELETE = 12
-CMD_COLLECTION_ITEM_LIST = 13
 CMD_COLLECTION_QUERY = 14
 CMD_COLLECTION_ITEM_DELETE_MANY = 15
 CMD_COLLECTION_ITEM_UPDATE = 16
@@ -303,32 +302,6 @@ class MemoryToolsClient:
         key_payloads = b''.join(write_string(key) for key in keys)
         payload = write_string(collection_name) + struct.pack('<L', len(keys)) + key_payloads
         return await self._send_command(CMD_COLLECTION_ITEM_DELETE_MANY, payload)
-
-    async def collection_item_list(self, collection_name: str) -> Dict[str, Any]:
-        """
-        Lists all items in a collection.
-        NOTE: This can consume significant memory for large collections. Using `query` is preferred.
-        """
-        response = await self._send_command(CMD_COLLECTION_ITEM_LIST, write_string(collection_name))
-        if not response.ok: raise Exception(f"Item List failed: {response.status}: {response.message}")
-
-        raw_map = response.json_data
-        if not isinstance(raw_map, dict): return {}
-            
-        decoded_map = {}
-        for key, value in raw_map.items():
-            if isinstance(value, str):
-                try:
-                    # Decode from base64 and then load as JSON
-                    decoded_bytes = base64.b64decode(value)
-                    decoded_map[key] = json.loads(decoded_bytes)
-                except (ValueError, TypeError, json.JSONDecodeError):
-                    # If it fails, keep the raw value
-                    decoded_map[key] = value
-            else:
-                # If the value is already decoded (e.g., sanitized _system data)
-                decoded_map[key] = value
-        return decoded_map
 
     async def collection_query(self, collection_name: str, query: Query) -> Any:
         """Executes a complex query on a collection."""

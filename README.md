@@ -241,10 +241,6 @@ Deletes a single item from a collection by its key.
 
 Deletes multiple items from a collection by their keys in a single batch.
 
-#### `async collection_item_list(collection_name: str) -> Dict[str, Any]`
-
-Returns a dictionary of all items in a collection. **Warning:** This can be slow and memory-intensive for large collections. Prefer `collection_query` with limits.
-
 ### Query Operations
 
 #### `async collection_query(collection_name: str, query: Query) -> Any`

@@ -122,10 +122,17 @@ async def run_tests():
                 await client.collection_item_delete_many(coll_name, ["item:1", "item:2"])
                 print("✔ Success: DELETED MANY items")
                 
-                final_list = await client.collection_item_list(coll_name)
-                if len(final_list) != 1 or "item:3" not in final_list:
-                    raise Exception(f"Incorrect items remain after deletion: {list(final_list.keys())}")
-                print("✔ Success: LIST verified correct items remain after partial deletion")
+                # ====================================================================
+                # ⬇️⬇️⬇️ INICIO DE LA SECCIÓN AJUSTADA ⬇️⬇️⬇️
+                # ====================================================================
+                final_items = await client.collection_query(coll_name, Query())
+                if len(final_items) != 1 or final_items[0]['_id'] != 'item:3':
+                    remaining_ids = [item.get('_id') for item in final_items]
+                    raise Exception(f"Incorrect items remain after deletion: {remaining_ids}")
+                print("✔ Success: QUERY verified correct items remain after partial deletion")
+                # ====================================================================
+                # ⬆️⬆️⬆️ FIN DE LA SECCIÓN AJUSTADA ⬆️⬆️⬆️
+                # ====================================================================
 
             finally:
                 # --- Cleanup ---

@@ -1,28 +1,28 @@
 import setuptools
 
-# Lee el archivo README.md para usarlo como la descripción larga del paquete.
+# Read the README.md file for the long description of the package.
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    # Nombre del paquete que se usará para 'pip install'.
+    # The name of the package that will be used for 'pip install'.
     name="memory-tools-client",
-    # Versión de tu paquete.
-    version="1.0.5",
-    # Autor y dirección de correo electrónico.
+    # The current version of your package.
+    version="1.0.6",
+    # Author and email address.
     author="Adonay Boscan",
     author_email="adoboscan21@gmail.com",
-    # Descripción corta del proyecto.
+    # A short description of the project.
     description="A Python client for the Memory Tools database.",
-    # Descripción larga, extraída de README.md.
+    # The long description, extracted from README.md.
     long_description=long_description,
     long_description_content_type="text/markdown",
-    # URL de tu proyecto (por ejemplo, en GitHub).
+    # The URL of your project (e.g., the GitHub repository).
     url="https://github.com/adoboscan21/Memory-Tools-Client-Python3.git",
-    # Especifica dónde está el código fuente.
+    # Specifies where the source code is located.
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
-    # Clases de clasificación que ayudan a la gente a encontrar tu proyecto.
+    # Classifiers that help people find your project on PyPI.
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -30,9 +30,9 @@ setuptools.setup(
         "Topic :: Database",
         "Topic :: Software Development :: Libraries",
     ],
-    # Dependencias del paquete.
+    # Package dependencies required for installation.
     install_requires=[
     ],
-    # Versiones de Python compatibles.
+    # Compatible Python versions.
     python_requires=">=3.13.5",
 )

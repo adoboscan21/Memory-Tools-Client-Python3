@@ -8,7 +8,7 @@ setuptools.setup(
     # The name of the package that will be used for 'pip install'.
     name="memory-tools-client",
     # The current version of your package.
-    version="1.0.6",
+    version="1.0.7",
     # Author and email address.
     author="Adonay Boscan",
     author_email="adoboscan21@gmail.com",

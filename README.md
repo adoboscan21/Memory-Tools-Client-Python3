@@ -44,7 +44,7 @@ async def main():
     # The client will be automatically connected and closed
     try:
         # Connect as a standard user, e.g., 'admin'
-        async with MemoryToolsClient("127.0.0.1", 5876, "admin", "adminpass") as client:
+        async with MemoryToolsClient("127.0.0.1", 5876, "admin", "adminpass", None, False) as client:
             print(f"Connected as '{client.authenticated_user}'")
 
             coll_name = "my_first_collection"

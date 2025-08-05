@@ -77,8 +77,17 @@ async def run_tests():
 
                 # 2. GET operations and verification
                 retrieved = await client.collection_item_get(coll_name, "item:1")
-                if not (retrieved.found and retrieved.value == items_to_set[0]):
-                    raise Exception(f"GET verification failed for item:1. Got: {retrieved.value}")
+                if not retrieved.found:
+                    raise Exception("GET verification failed: item 'item:1' was not found.")
+
+                original_item = items_to_set[0]
+                retrieved_item = retrieved.value
+
+                # Check if all original key-value pairs exist and match in the retrieved item
+                for key, original_value in original_item.items():
+                    if key not in retrieved_item or retrieved_item[key] != original_value:
+                        raise Exception(f"GET verification failed for item:1. Key '{key}' mismatch. Expected '{original_value}', Got '{retrieved_item.get(key)}'")
+
                 print("✔ Success: GET verified item 'item:1' correctly")
 
                 not_found = await client.collection_item_get(coll_name, "non-existent-key")

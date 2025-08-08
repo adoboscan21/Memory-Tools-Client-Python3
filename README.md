@@ -115,8 +115,6 @@ The `filter` dictionary is the core of your query. It can be a single condition 
 | `is null`       | The field does not exist or is `null`               | `True`                     |
 | `is not null`   | The field exists and is not `null`                  | `True`                     |
 
-Exportar a Hojas de cálculo
-
 **Logical Operators (`and`, `or`, `not`):**
 
 ```python
@@ -146,8 +144,6 @@ Each lookup dictionary has the following structure:
 | `localField`   | `str` | The field from the current documents. Dot notation is supported for nested fields (e.g., `product.id`). |
 | `foreignField` | `str` | The field in the `from` collection to match against.                                                    |
 | `as`           | `str` | The name of the new field where the joined data will be stored.                                         |
-
-Exportar a Hojas de cálculo
 
 **Example: Chained Lookups & Projection** Let's query an `inventory_status` collection and enrich it with data from `products` and then `suppliers`.
 

@@ -101,6 +101,8 @@ class Query:
         self.group_by: Optional[List[str]] = kwargs.get("group_by")
         self.having: Optional[Dict] = kwargs.get("having")
         self.distinct: Optional[str] = kwargs.get("distinct")
+        self.projection: Optional[List[str]] = kwargs.get("projection")
+        self.lookups: Optional[List[Dict]] = kwargs.get("lookups")
 
     def to_json(self) -> bytes:
         """Serializes the query to a server-compatible JSON."""

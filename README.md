@@ -16,7 +16,7 @@ An asynchronous Python 3 client for the **Memory Tools** database. It uses `asyn
 
 ## 🚀 Installation
 
-_Currently, you need to install it directly from the source file._ (Eventualmente, podrías publicarlo en PyPI).
+_Currently, you need to install it directly from the source file._ (Eventually, you could publish it to PyPI).
 
 To run the tests after cloning the repository:
 
@@ -92,6 +92,8 @@ You create a `Query` object by passing keyword arguments:
 - `group_by` (list): Groups results by one or more fields to perform aggregations.
 - `aggregations` (dict): Defines aggregation functions to run on groups (e.g., `SUM`, `AVG`, `COUNT`).
 - `having` (dict): Filters the results _after_ grouping and aggregation (like a `HAVING` clause).
+- **`projection` (list)**: Selects which fields to return in the final results, reducing network traffic.
+- **`lookups` (list)**: Enriches documents by joining data from other collections in a pipeline, similar to a `LEFT JOIN`.
 
 ### Building Filters
 
@@ -110,14 +112,16 @@ The `filter` dictionary is the core of your query. It can be a single condition 
 | `like`          | Case-insensitive pattern matching (`%` is wildcard) | `"start%"` or `"%middle%"` |
 | `in`            | Value is in a list of possibilities                 | `["value1", "value2"]`     |
 | `between`       | Value is between two values (inclusive)             | `[10, 20]`                 |
-| `is null`       | The field does not exist or is `null`               | `True` (o cualquier valor) |
-| `is not null`   | The field exists and is not `null`                  | `True` (o cualquier valor) |
+| `is null`       | The field does not exist or is `null`               | `True`                     |
+| `is not null`   | The field exists and is not `null`                  | `True`                     |
+
+Exportar a Hojas de cálculo
 
 **Logical Operators (`and`, `or`, `not`):**
 
-You can combine conditions into complex logic.
-
 ```python
+from memory_tools_client import Query
+
 # Query: Find users who are active AND (live in Madrid OR live in Barcelona)
 query = Query(filter={
     "and": [
@@ -128,6 +132,77 @@ query = Query(filter={
         ]}
     ]
 })
+```
+
+### Joins and Data Enrichment with `lookups`
+
+The **`lookups`** parameter enables powerful server-side joins to enrich your query results. It accepts a list of lookup dictionaries, which are executed in a sequence (a pipeline). This is extremely efficient as it avoids making multiple round-trips to the database.
+
+Each lookup dictionary has the following structure:
+
+| Key            | Type  | Description                                                                                             |
+| -------------- | ----- | ------------------------------------------------------------------------------------------------------- |
+| `from`         | `str` | The name of the collection to join with.                                                                |
+| `localField`   | `str` | The field from the current documents. Dot notation is supported for nested fields (e.g., `product.id`). |
+| `foreignField` | `str` | The field in the `from` collection to match against.                                                    |
+| `as`           | `str` | The name of the new field where the joined data will be stored.                                         |
+
+Exportar a Hojas de cálculo
+
+**Example: Chained Lookups & Projection** Let's query an `inventory_status` collection and enrich it with data from `products` and then `suppliers`.
+
+```python
+import json
+from memory_tools_client import Query
+
+# Query: Get the status of all items in stock, and for each,
+# join the product's name and price, and then the supplier's name.
+# Finally, project a clean, flat structure.
+
+report_query = Query(
+    # 1. Start with the inventory and filter
+    filter={"field": "status", "op": "=", "value": "in_stock"},
+
+    # 2. Perform a pipeline of lookups
+    lookups=[
+        {
+            "from": "products",
+            "localField": "productId",
+            "foreignField": "_id",
+            "as": "product"
+        },
+        {
+            "from": "suppliers",
+            "localField": "product.supplierId",
+            "foreignField": "_id",
+            "as": "supplier"
+        }
+    ],
+
+    # 3. Select only the fields we need for the final report
+    projection=[
+        "product.name",
+        "stock",
+        "supplier.name",
+        "supplier.country"
+    ]
+)
+
+# results = await client.collection_query("inventory_status", report_query)
+# print(json.dumps(results, indent=2))
+# Expected Output:
+# [
+#   {
+#     "product": { "name": "MechKey Pro" },
+#     "stock": 75,
+#     "supplier": { "name": "GigaWare", "country": "Taiwan" }
+#   },
+#   {
+#     "product": { "name": "ErgoMouse X" },
+#     "stock": 120,
+#     "supplier": { "name": "InnoGadget", "country": "USA" }
+#   }
+# ]
 ```
 
 ### Aggregation Example
@@ -141,19 +216,15 @@ You can perform powerful data analysis directly on the server.
 query = Query(
     # First, select only active users
     filter={"field": "active", "op": "=", "value": True},
-
     # Group by the 'city' field
     group_by=["city"],
-
     # Define aggregations to perform on each group
     aggregations={
         "user_count": {"func": "count", "field": "_id"},
         "average_score": {"func": "avg", "field": "score"}
     },
-
     # Filter the groups after aggregation
     having={"field": "user_count", "op": ">", "value": 10},
-
     # Order the final results
     order_by=[{"field": "average_score", "direction": "desc"}]
 )
@@ -161,8 +232,6 @@ query = Query(
 # results = await client.collection_query("users", query)
 # print(json.dumps(results, indent=2))
 ```
-
----
 
 ## ⚡ API Reference
 
@@ -173,10 +242,15 @@ query = Query(
 Creates a new client instance.
 
 - **`host`** (`str`): Server IP address or hostname.
+
 - **`port`** (`int`): Server TLS port.
+
 - **`username`** (`str`, optional): Username for authentication.
+
 - **`password`** (`str`, optional): Password for authentication.
+
 - **`server_cert_path`** (`str`, optional): Path to the server's CA certificate for verification. If `None`, uses system CAs.
+
 - **`reject_unauthorized`** (`bool`, optional): If `False`, disables certificate verification (**not for production**). Defaults to `True`.
 
 #### `is_authenticated` (property)
@@ -257,8 +331,6 @@ Executes a complex query on a collection.
 - **Verify Certificates:** In production, always set `reject_unauthorized=True` (the default) and provide a `server_cert_path` to your CA certificate. This prevents man-in-the-middle attacks.
 - **Manage Credentials:** Avoid hardcoding credentials. Use environment variables or a secrets management system.
 - **Principle of Least Privilege:** Create users with the minimum permissions they need. Avoid using the `admin` user for regular application access.
-
----
 
 ## 🤝 Contributions
 

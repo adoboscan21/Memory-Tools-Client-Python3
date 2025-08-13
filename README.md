@@ -36,7 +36,7 @@ async def main():
         "port": 5876,
         "username": "admin",
         "password": "adminpass",
-        "cert_path": None,
+        "server_cert_path": None,
         "reject_unauthorized": False
     }
 

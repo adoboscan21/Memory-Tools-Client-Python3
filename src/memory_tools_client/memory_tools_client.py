@@ -2,7 +2,6 @@ import asyncio
 import ssl
 import json
 import struct
-import uuid
 from typing import Any, Dict, List, Optional, Union
 import logging
 
@@ -226,7 +225,7 @@ class MemoryToolsClient:
         return CommandResponse(status, message, data)
 
     async def _send_command(self, command_type: int, payload: bytes) -> CommandResponse:
-        """Sends a command with its payload and reads the response, handling reconnections."""
+        """Sends a command with its payload and reads the response, handling re connections."""
         if not self.writer or self.writer.is_closing():
             await self.connect()
 
@@ -328,13 +327,16 @@ class MemoryToolsClient:
         key: Optional[str] = None,
         ttl_seconds: int = 0,
     ) -> CommandResponse:
-        """Sets an item in a collection. If key is None, a UUID is generated."""
-        if key is None:
-            key = str(uuid.uuid4())
-        value["_id"] = key
+        """
+        Sets an item in a collection.
+        If a key is provided, it's used. If key is None, the server will generate a unique ID.
+        Returns the full server response, access the created document with .json_data
+        """
+        final_key = key if key is not None else ""
+        
         payload = (
             write_string(collection_name)
-            + write_string(key)
+            + write_string(final_key)
             + write_bytes(json.dumps(value).encode("utf-8"))
             + struct.pack("<q", ttl_seconds)
         )
@@ -343,10 +345,12 @@ class MemoryToolsClient:
     async def collection_item_set_many(
         self, collection_name: str, items: List[Dict]
     ) -> CommandResponse:
-        """Sets multiple items in a collection. Assigns a UUID to items without an '_id'."""
-        for item in items:
-            if "_id" not in item or not item["_id"]:
-                item["_id"] = str(uuid.uuid4())
+        """
+        Sets multiple items in a collection. 
+        The server will assign a unique ID to any item missing an '_id'.
+        Returns the full server response, access the created documents with .json_data
+        """
+
         payload = write_string(collection_name) + write_bytes(
             json.dumps(items).encode("utf-8")
         )
